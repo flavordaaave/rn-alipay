@@ -36,10 +36,10 @@
 
 /* Begin PBXFileReference section */
 		DB08841C1CE1B68F00A9A358 /* libRNAlipay.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libRNAlipay.a; sourceTree = BUILT_PRODUCTS_DIR; };
-		DB08841F1CE1B68F00A9A358 /* RNAlipay.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RNAlipay.h; sourceTree = "<group>"; };
-		DB0884211CE1B69000A9A358 /* RNAlipay.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RNAlipay.m; sourceTree = "<group>"; };
-		DB0884361CE1BC1200A9A358 /* Order.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Order.h; sourceTree = "<group>"; };
-		DB0884371CE1BC1200A9A358 /* Order.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Order.m; sourceTree = "<group>"; };
+		DB08841F1CE1B68F00A9A358 /* RNAlipay.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = RNAlipay.h; path = RNAlipay/RNAlipay.h; sourceTree = "<group>"; };
+		DB0884211CE1B69000A9A358 /* RNAlipay.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = RNAlipay.m; path = RNAlipay/RNAlipay.m; sourceTree = "<group>"; };
+		DB0884361CE1BC1200A9A358 /* Order.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Order.h; path = RNAlipay/Order.h; sourceTree = "<group>"; };
+		DB0884371CE1BC1200A9A358 /* Order.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Order.m; path = RNAlipay/Order.m; sourceTree = "<group>"; };
 		DB0884A01CE2BD2A00A9A358 /* aes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = aes.h; sourceTree = "<group>"; };
 		DB0884A11CE2BD2A00A9A358 /* asn1.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = asn1.h; sourceTree = "<group>"; };
 		DB0884A21CE2BD2A00A9A358 /* asn1_mac.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = asn1_mac.h; sourceTree = "<group>"; };
@@ -152,12 +152,15 @@
 		DB0884131CE1B68F00A9A358 = {
 			isa = PBXGroup;
 			children = (
+				DB08841F1CE1B68F00A9A358 /* RNAlipay.h */,
+				DB0884211CE1B69000A9A358 /* RNAlipay.m */,
+				DB0884361CE1BC1200A9A358 /* Order.h */,
+				DB0884371CE1BC1200A9A358 /* Order.m */,
 				DBF699001D36301C00A286F0 /* libcrypto.a */,
 				DBF699011D36301C00A286F0 /* libssl.a */,
 				DB0885051CE2C10600A9A358 /* AlipaySDK.framework */,
 				DB08849F1CE2BD2A00A9A358 /* openssl */,
 				DB0884EB1CE2BD2A00A9A358 /* Util */,
-				DB08841E1CE1B68F00A9A358 /* RNAlipay */,
 				DB08841D1CE1B68F00A9A358 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -168,17 +171,6 @@
 				DB08841C1CE1B68F00A9A358 /* libRNAlipay.a */,
 			);
 			name = Products;
-			sourceTree = "<group>";
-		};
-		DB08841E1CE1B68F00A9A358 /* RNAlipay */ = {
-			isa = PBXGroup;
-			children = (
-				DB08841F1CE1B68F00A9A358 /* RNAlipay.h */,
-				DB0884211CE1B69000A9A358 /* RNAlipay.m */,
-				DB0884361CE1BC1200A9A358 /* Order.h */,
-				DB0884371CE1BC1200A9A358 /* Order.m */,
-			);
-			path = RNAlipay;
 			sourceTree = "<group>";
 		};
 		DB08849F1CE2BD2A00A9A358 /* openssl */ = {

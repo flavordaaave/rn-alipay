@@ -7,4 +7,7 @@
 #import <UIKit/UIKit.h>
 
 @interface RNAlipay : NSObject <RCTBridgeModule>
+
++(void) handleCallback:(NSURL *)url;
+
 @end

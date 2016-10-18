@@ -3,6 +3,9 @@
 #import "DataSigner.h"
 #import <AlipaySDK/AlipaySDK.h>
 
+static RCTPromiseResolveBlock _resolve;
+static RCTPromiseRejectBlock _reject;
+
 @implementation RNAlipay
 
 RCT_EXPORT_MODULE();
@@ -11,46 +14,55 @@ RCT_REMAP_METHOD(pay, options:(NSDictionary *)options
                  resolver:(RCTPromiseResolveBlock)resolve
                  rejecter:(RCTPromiseRejectBlock)reject)
 {
+    // Check for url schemes that can be used
+    NSArray *urls = [[NSBundle mainBundle] infoDictionary][@"CFBundleURLTypes"];
+    NSMutableString *appScheme = [NSMutableString string];
+    BOOL multiUrls = [urls count] > 1;
+    for (NSDictionary *url in urls) {
+        NSArray *schemes = url[@"CFBundleURLSchemes"];
+        if (!multiUrls ||
+            (multiUrls && [@"alipay" isEqualToString:url[@"CFBundleURLName"]])) {
+            [appScheme appendString:schemes[0]];
+            break;
+        }
+    }
     
-    NSString *privateKey = @"__FILL IN HERE__";
+    if ([appScheme isEqualToString:@""]) {
+        NSString *error = @"scheme cannot be empty";
+        reject(@"10000", error, [NSError errorWithDomain:error code:10000 userInfo:NULL]);
+        return;
+    }
     
-    NSString *appScheme = @"com.dongxii.alipay";
+    _resolve = resolve;
+    _reject = reject;
+    
+    NSString *privateKey = @"__ADD__HERE__";
     
     // Create the order
     Order *order = [[Order alloc] init];
-    order.partner = @"__FILL IN HERE__";
-    order.seller = @"__FILL IN HERE__";
+    order.partner = @"__ADD__HERE__";
+    order.seller = @"__ADD__HERE__";
     order.out_trade_no = [options objectForKey:@"orderId"];
     order.subject = [options objectForKey:@"subject"];
     order.body = [options objectForKey:@"body"];
     float rmb_fee = [[options objectForKey:@"amount"] floatValue];
     order.rmb_fee = [NSString stringWithFormat:@"%0.2f", rmb_fee];
-    order.currency = @"__FILL IN HERE__";
+    order.currency = @"EUR";
     order.forex_biz = @"FP";
-    order.notifyURL =  @"__FILL IN HERE__";
+    order.notifyURL =  @"__ADD__HERE__";
     order.service = @"mobile.securitypay.pay";
     order.payment_type = @"1";
     order._input_charset = @"utf-8";
     order.it_b_pay = @"30m";
     order.show_url = @"m.alipay.com";
     
-    
-    NSLog(@"ALIPAY: Order = %@", order.out_trade_no);
-    NSLog(@"ALIPAY: Subject = %@", order.subject);
-    NSLog(@"ALIPAY: Body = %@", order.body);
-    NSLog(@"ALIPAY: Amount = %@", order.rmb_fee);
-    
     // Create the orderString
     NSString *orderSpec = [order description];
-    NSLog(@"ALIPAY: orderSpec = %@",orderSpec);
 
     // Sign the orderString
     id<DataSigner> signer = CreateRSADataSigner(privateKey);
     NSString *signedString = [signer signString:orderSpec];
-    
     NSLog(@"ALIPAY: signedString = %@",signedString);
-    
-
     
     // Initiate the payment
     NSString *orderString = nil;
@@ -59,16 +71,39 @@ RCT_REMAP_METHOD(pay, options:(NSDictionary *)options
                        orderSpec, signedString, @"RSA"];
         
         [[AlipaySDK defaultService] payOrder:orderString fromScheme:appScheme callback:^(NSDictionary *resultDic) {
-            NSString *status = resultDic[@"resultStatus"];
-            if ([status integerValue] >= 8000) {
-                resolve(@[resultDic]);
-            } else {
-                reject(status, resultDic[@"memo"], [NSError errorWithDomain:resultDic[@"memo"] code:[status integerValue] userInfo:NULL]);
-            }
+            [RNAlipay handleResult:resultDic];
         }];
-        
-        
     }
 }
+
++(void) handleResult:(NSDictionary *)resultDic
+{
+    NSString *status = resultDic[@"resultStatus"];
+    if ([status integerValue] >= 8000) {
+        _resolve(@[resultDic]);
+    } else {
+        _reject(status, resultDic[@"memo"], [NSError errorWithDomain:resultDic[@"memo"] code:[status integerValue] userInfo:NULL]);
+    }
+}
+
++(void) handleCallback:(NSURL *)url
+{
+    //如果极简开发包不可用，会跳转支付宝钱包进行支付，需要将支付宝钱包的支付结果回传给开发包
+    if ([url.host isEqualToString:@"safepay"]) {
+        [[AlipaySDK defaultService] processOrderWithPaymentResult:url standbyCallback:^(NSDictionary *resultDic) {
+            //【由于在跳转支付宝客户端支付的过程中，商户app在后台很可能被系统kill了，所以pay接口的callback就会失效，请商户对standbyCallback返回的回调结果进行处理,就是在这个方法里面处理跟callback一样的逻辑】
+            [self handleResult:resultDic];
+        }];
+    }
+    if ([url.host isEqualToString:@"platformapi"]){//支付宝钱包快登授权返回authCode
+        
+        [[AlipaySDK defaultService] processAuthResult:url standbyCallback:^(NSDictionary *resultDic) {
+            //【由于在跳转支付宝客户端支付的过程中，商户app在后台很可能被系统kill了，所以pay接口的callback就会失效，请商户对standbyCallback返回的回调结果进行处理,就是在这个方法里面处理跟callback一样的逻辑】
+            [self handleResult:resultDic];
+        }];
+    }
+}
+
+
 
 @end
